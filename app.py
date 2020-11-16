@@ -20,10 +20,11 @@ IMG_REGEX = r'^\d{4}-\d{4}-\d{6}_+[a-zA-Z0-9_]*.(jpg|jpeg|png|ping)$'
 # SSH
 with paramiko.SSHClient() as ssh:
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
-    ssh.connect(HOST, PORT, USER, key_filename=KEY_PATH)
+    key = paramiko.Ed25519Key.from_private_key_file(KEY_PATH)
+    ssh.connect(HOST, PORT, USER, key_filename=key)
     
     # sftp put
     with client.open_sftp() as sftp:
         img_paths = [img for img in os.listdir(IMAGE_DIR) if re.search(IMG_REGEX, img)]
         for img_path in img_paths:
-            sftp.put(, REMOTE_IMAGE_DIR)
+            sftp.put(IMAGE_DIR + img_path, REMOTE_IMAGE_DIR)
